@@ -1,4 +1,5 @@
 import agentpy as ap
+import numpy as np
 from enum import Enum
 
 class Direction(Enum):
@@ -23,47 +24,37 @@ class Robot(ap.Agent):
       self.position = grid.positions[self]
    def get_position(self):
       return self.position
-   def get_movement_delta(self, direction: Direction):
-      delta = (0, 0)
-      if direction == Direction.UP:
-         delta = (-1, 0)
-      elif direction == Direction.DOWN:
-         delta = (1, 0)
-      elif direction == Direction.LEFT:
-         delta = (0, -1)
-      elif direction == Direction.RIGHT:
-         delta = (0, 1)
-      elif direction == Direction.UPLEFT:
-         delta = (-1, -1)
-      elif direction == Direction.UPRIGHT:
-         delta = (-1, 1)
-      elif direction == Direction.DOWNLEFT:
-         delta = (1, -1)
-      elif direction == Direction.DOWNRIGHT:
-         delta = (1, 1)
-      else:
-         print("ERROR; Invalid direction parameter")
-      return delta
-
-   def step(self):
-      # if not self.fetching:
-      #    boxes = []
-      #    neighbors = self.grid.neighbors(self, distance=self.diagonal)
-      #    fetchbox = None
-      #    mindistance = self.diagonal
-      #    for n in neighbors:
-      #       if n.type == "box":
-      #          boxpos = self.grid.positions[n]
-
-      #          # Print the box position
-      #          print("Box found at: " + str(boxpos))
-      delta = self.get_movement_delta(Direction.DOWNRIGHT)
-      self.grid.move_by(self, delta)
-
+   
    def set_diagonal(self, diagonal):
       self.diagonal = diagonal
+   def get_vector(self):
+      ydelta = self.target[0] - self.position[0]
+      xdelta = self.target[1] - self.position[1]
+      vector = np.array([ydelta, xdelta])
+      vector = vector / np.linalg.norm(vector)
+      vector = vector.tolist()
+      vector[0] = int(round(vector[0]))
+      vector[1] = int(round(vector[1]))
+      print("Movement vector: " + str(vector))
+      return vector
    
    def set_target(self, target: tuple):
       self.target = target
       self.fetching = True
       print("Robot got target at " + str(self.target))
+      self.movement_vector = self.get_vector()
+
+   def set_br_router(self, br_router: dict):
+      self.br_router = br_router
+
+   def step(self):
+      if self.fetching:
+         self.movement_vector = self.get_vector()
+         self.grid.move_by(self, self.movement_vector)
+         # Update vector
+         # Check if we have arrived
+         self.position = self.grid.positions[self]
+         if (self.target == self.position):
+            self.fetching = False
+
+

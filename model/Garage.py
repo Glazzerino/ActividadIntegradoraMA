@@ -1,6 +1,5 @@
 import agentpy as ap
 import math
-import random
 from agents.Robot import Robot
 
 class Garage(ap.Model):
@@ -20,8 +19,9 @@ class Garage(ap.Model):
       # Calculate diagonal
       self.diagonal = int(math.sqrt(math.pow(self.p.size, 2)))
       self.robots.set_diagonal(self.diagonal)
-
       self.br_router = {}
+      # Share reference to dictionary with robots
+
       # Shameful O(n^2) loop
       for robot in self.robots:
          mindistance = self.diagonal
@@ -35,6 +35,7 @@ class Garage(ap.Model):
                if distance < mindistance:
                   mindistance = distance
                   box_target = box
+         # Register "task"
          self.br_router[box_target.id] = robot.id
          target_position = self.grid.positions[box_target]
          robot.set_target(target_position)
