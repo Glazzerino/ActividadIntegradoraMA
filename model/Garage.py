@@ -3,7 +3,6 @@ import math
 import random
 from agents.Robot import Robot
 
-
 class Garage(ap.Model):
    def setup(self):
       # Create space and instantiate agents
@@ -15,18 +14,33 @@ class Garage(ap.Model):
       self.boxes.type = "box"
       self.robots.condition = 2
       self.grid.add_agents(self.boxes, random=True)
-      self.grid.add_agents(self.robots, random=True)
-      self.robots.set_location(self.grid)
+      self.grid.add_agents(self.robots, random=True) # Random positions
+      self.robots.set_position(self.grid) # Communicate positions to each robot
 
       # Calculate diagonal
       self.diagonal = int(math.sqrt(math.pow(self.p.size, 2)))
-      print(self.diagonal)
       self.robots.set_diagonal(self.diagonal)
+
+      self.br_router = {}
+      # Shameful O(n^2) loop
       for robot in self.robots:
-         neighbors = self.grid.neighbors(robot, distance=self.diagonal)
-         for neighbor in neighbors:
-            if neighbor.type == "box":
-               neighbor.condition = 3
+         mindistance = self.diagonal
+         box_target = None
+         for box in self.boxes:
+            if box.id in self.br_router:
+               continue
+            else:
+               boxpos = self.grid.positions[box]
+               distance = self.point_distance(robot.get_position(), boxpos)
+               if distance < mindistance:
+                  mindistance = distance
+                  box_target = box
+         self.br_router[box_target.id] = robot.id
+         target_position = self.grid.positions[box_target]
+         robot.set_target(target_position)
 
    def step(self):
       self.robots.step()
+
+   def point_distance(self, point1, point2):
+      return math.sqrt(math.pow(point1[0] - point2[0], 2) + math.pow(point1[1] - point2[1], 2))

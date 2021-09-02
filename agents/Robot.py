@@ -6,17 +6,23 @@ class Direction(Enum):
    RIGHT = 1
    UP = 2
    DOWN = 3
+   UPLEFT = 4
+   UPRIGHT = 5
+   DOWNLEFT = 6
+   DOWNRIGHT = 7
 
 class Robot(ap.Agent):
 
    def setup(self):
       self.box_count = 0
       self.fetching = False
+      self.target = (0, 0)
 
-   def set_location(self, grid: ap.Grid):
+   def set_position(self, grid):
       self.grid = grid
       self.position = grid.positions[self]
-   
+   def get_position(self):
+      return self.position
    def get_movement_delta(self, direction: Direction):
       delta = (0, 0)
       if direction == Direction.UP:
@@ -27,6 +33,14 @@ class Robot(ap.Agent):
          delta = (0, -1)
       elif direction == Direction.RIGHT:
          delta = (0, 1)
+      elif direction == Direction.UPLEFT:
+         delta = (-1, -1)
+      elif direction == Direction.UPRIGHT:
+         delta = (-1, 1)
+      elif direction == Direction.DOWNLEFT:
+         delta = (1, -1)
+      elif direction == Direction.DOWNRIGHT:
+         delta = (1, 1)
       else:
          print("ERROR; Invalid direction parameter")
       return delta
@@ -43,8 +57,13 @@ class Robot(ap.Agent):
 
       #          # Print the box position
       #          print("Box found at: " + str(boxpos))
-      delta = self.get_movement_delta(Direction.UP)
+      delta = self.get_movement_delta(Direction.DOWNRIGHT)
       self.grid.move_by(self, delta)
 
    def set_diagonal(self, diagonal):
       self.diagonal = diagonal
+   
+   def set_target(self, target: tuple):
+      self.target = target
+      self.fetching = True
+      print("Robot got target at " + str(self.target))
