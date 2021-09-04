@@ -2,16 +2,6 @@ import agentpy as ap
 import numpy as np
 from enum import Enum
 
-class Direction(Enum):
-   LEFT = 0
-   RIGHT = 1
-   UP = 2
-   DOWN = 3
-   UPLEFT = 4
-   UPRIGHT = 5
-   DOWNLEFT = 6
-   DOWNRIGHT = 7
-
 class Robot(ap.Agent):
 
    def setup(self):
