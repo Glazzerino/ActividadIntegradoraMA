@@ -7,6 +7,7 @@ class Garage(ap.Model):
    def assign_target(self, robot: Robot):
       if not robot.is_fetching():
          robot.set_target(self.goal)
+         return
       mindistance = self.diagonal
       box_target = None
       boxpos_target = None
@@ -46,10 +47,12 @@ class Garage(ap.Model):
       self.robots.set_diagonal(self.diagonal)
       self.br_router = {}
       # Share reference to dictionary with robots
-
       # Shameful O(n^2) loop
       for robot in self.robots:
+         robot.set_fetching(True)
          self.assign_target(robot)
+
+      
    def step(self):
       for robot in self.robots:
          robot.step()
@@ -65,11 +68,11 @@ class Garage(ap.Model):
                self.assign_target(robot)
          else:
             robot_goal_distance = abs(self.point_distance(robot.get_position(), self.goal))
+            print("")
             if (robot_goal_distance <= 1):
-               self.goal_counter[str(self.goal)] += robot.get_counter()
-               if self.goal_counter[str(self.goal)] == 5:
-                  self.goal = self.goal[::-1]
-                  self.goal_counter[str(self.goal)] = 0
+               self.goal = [self.goal[0]+1, self.goal[1]+1]
+               robot.set_fetching(True)
+               self.assign_target(robot)
 
             
 # pos = self.positions[agent]  # Get position

@@ -78,3 +78,6 @@ class Robot(ap.Agent):
    def counter_reset(self):
       self.box_count = 0
       self.fetching = True
+   
+   def set_fetching(self, mode):
+      self.fetching = mode
