@@ -43,7 +43,7 @@ class Robot(ap.Agent):
       print("Movement vector: " + str(vector))
       return vector
    
-   def set_target(self, target: tuple, box: ap.Agent):
+   def set_target(self, target: tuple):
       self.target = target
       self.fetching = True
       print("Robot got target at " + str(self.target))
@@ -66,3 +66,15 @@ class Robot(ap.Agent):
 
    def get_target_pos(self):
       return self.target
+
+   def get_counter(self):
+      return self.box_count
+   def counter_add(self):
+      self.box_count += 1
+      if (self.box_count == 5):
+         self.fetching = False
+         self.box_count = 0
+   
+   def counter_reset(self):
+      self.box_count = 0
+      self.fetching = True
